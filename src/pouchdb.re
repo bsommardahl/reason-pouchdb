@@ -3,30 +3,17 @@ module DatabaseInfo = {
     .
     "db_name": string,
     "doc_count": int,
-    "update_seq": int
+    "update_seq": int,
   };
 };
 
-module GetResponse = {
-  type t;
-  [@bs.get] external id : t => string = "_id";
-  [@bs.get] external rev : t => string = "_rev";
-  /* and more props depending on the type */
-};
-
-module PutResponse = {
+module RevResponse = {
   type t = {
     .
     "ok": bool,
     "id": string,
-    "rev": string
+    "rev": string,
   };
-};
-
-module FindResponse = {
-  type t;
-  [@bs.get] external docs : t => array('a) = "";
-  /* Not sure this works because we don't know what 'a is. */
 };
 
 module FindRequest = {
@@ -37,28 +24,40 @@ module FindRequest = {
     (
       ~selector: Js.t({..}),
       ~fields: option(array(string))=?,
-      ~sort: option(array(string))=?
+      ~sort: option(array(string))=?,
+      unit
     ) =>
     queryT =
     "";
-  [@bs.val] external selector : t => Js.Json.t = "";
-  [@bs.val] external fields : t => Js.Array.t(Js.Json.t) = "";
-  [@bs.val] external sort : t => Js.Array.t(Js.Json.t) = "";
 };
 
 module PouchDBConnection = {
   type t;
   type idObj('a) = {.. "_id": string} as 'a;
   [@bs.send] external info : t => Js.Promise.t(DatabaseInfo.t) = "";
-  [@bs.send.pipe : t]
-  external put : idObj('a) => Js.Promise.t(PutResponse.t) = "";
-  [@bs.send.pipe : t]
-  external get : string => Js.Promise.t(GetResponse.t) = "";
-  [@bs.send.pipe : t]
-  external find : FindRequest.queryT => Js.Promise.t(FindResponse.t) = "";
+  [@bs.send.pipe: t]
+  external put : idObj('a) => Js.Promise.t(RevResponse.t) = "";
+  [@bs.send.pipe: t]
+  external remove : idObj('a) => Js.Promise.t(RevResponse.t) = "";
+  [@bs.send.pipe: t] external post : 'a => Js.Promise.t(RevResponse.t) = "";
+  [@bs.send.pipe: t] external get : string => Js.Promise.t(Js.t('a)) = "";
+  [@bs.send.pipe: t]
+  external find : FindRequest.queryT => Js.Promise.t(Js.t('a)) = "";
+  [@bs.send] external closeConnection : t => Js.Promise.t(unit) = "close";
 };
 
 type t;
 
-[@bs.module "pouchdb"] [@bs.new]
-external connect : string => PouchDBConnection.t = "default";
+type findPlugin;
+
+[@bs.module] external getFindPlugin : findPlugin = "pouchdb-find";
+
+[@bs.module "pouchdb"] external plugin : findPlugin => unit = "";
+
+[@bs.module] [@bs.new]
+external pouchdb : string => PouchDBConnection.t = "pouchdb";
+
+let pouchdb = (dbNameOrUrl: string) => {
+  plugin(getFindPlugin);
+  pouchdb(dbNameOrUrl);
+};
