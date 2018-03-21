@@ -3,7 +3,7 @@ module DatabaseInfo = {
     .
     "db_name": string,
     "doc_count": int,
-    "update_seq": int,
+    "update_seq": int
   };
 };
 
@@ -12,7 +12,7 @@ module RevResponse = {
     .
     "ok": bool,
     "id": string,
-    "rev": string,
+    "rev": string
   };
 };
 
@@ -31,17 +31,17 @@ module FindRequest = {
     "";
 };
 
-module PouchDBConnection = {
+module Connection = {
   type t;
   type idObj('a) = {.. "_id": string} as 'a;
   [@bs.send] external info : t => Js.Promise.t(DatabaseInfo.t) = "";
-  [@bs.send.pipe: t]
+  [@bs.send.pipe : t]
   external put : idObj('a) => Js.Promise.t(RevResponse.t) = "";
-  [@bs.send.pipe: t]
+  [@bs.send.pipe : t]
   external remove : idObj('a) => Js.Promise.t(RevResponse.t) = "";
-  [@bs.send.pipe: t] external post : 'a => Js.Promise.t(RevResponse.t) = "";
-  [@bs.send.pipe: t] external get : string => Js.Promise.t(Js.t('a)) = "";
-  [@bs.send.pipe: t]
+  [@bs.send.pipe : t] external post : 'a => Js.Promise.t(RevResponse.t) = "";
+  [@bs.send.pipe : t] external get : string => Js.Promise.t(Js.t('a)) = "";
+  [@bs.send.pipe : t]
   external find : FindRequest.queryT => Js.Promise.t(Js.t('a)) = "";
   [@bs.send] external closeConnection : t => Js.Promise.t(unit) = "close";
 };
@@ -54,8 +54,10 @@ type findPlugin;
 
 [@bs.module "pouchdb"] external plugin : findPlugin => unit = "";
 
+[@bs.send] external destroy : Connection.t => Js.Promise.t(unit) = "";
+
 [@bs.module] [@bs.new]
-external pouchdb : string => PouchDBConnection.t = "pouchdb";
+external pouchdb : string => Connection.t = "pouchdb";
 
 let pouchdb = (dbNameOrUrl: string) => {
   plugin(getFindPlugin);

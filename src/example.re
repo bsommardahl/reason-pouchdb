@@ -1,7 +1,19 @@
-
-/* let db = pouchdb("test");
-
-   db |> withFind; */
+let _ = {
+  open Pouchdb;
+  let dbUrl = "http://localhost:5984/testdb";
+  let db = ref(pouchdb(dbUrl));
+  Js.log(db^);
+  Js.Promise.(
+    destroy(db^)
+    |> then_(() => {
+         resolve(pouchdb(dbUrl));
+       })
+    |> then_(newDb => {
+         db := newDb;
+         resolve();
+       })
+  );
+};
 /*
  db |> PouchDBConnection.post({"name": "testing"}) |> ignore; */
 /*

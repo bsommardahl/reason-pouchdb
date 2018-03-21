@@ -1,0 +1,37 @@
+{
+  "name": "reason-pouchdb",
+  "version": "1.0.0",
+  "description": "In progress.",
+  "main": "index.js",
+  "scripts": {
+    "start": "bsb -make-world -w",
+    "build": "bsb -make-world",
+    "test": "jest",
+    "clean": "bsb -clean-world",
+    "test:watch": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsommardahl/reason-pouchdb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bsommardahl/reason-pouchdb/issues"
+  },
+  "homepage": "https://github.com/bsommardahl/reason-pouchdb#readme",
+  "dependencies": {
+    "bs-jest": "^0.3.2",
+    "bs-platform": "^2.2.3",
+    "pouchdb": "^6.4.3",
+    "pouchdb-find": "^6.4.3"
+  },
+  "jest": {
+    "rootDir": ".",
+    "testMatch": [
+      "**/*_test.js"
+    ],
+    "testEnvironment": "node"
+  }
+}
